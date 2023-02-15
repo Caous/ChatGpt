@@ -15,15 +15,18 @@ namespace ChatGptApi.Service
 
         public async Task<string> AnswerAndQuestion(string question, int token)
         {
+            TrainingChatGpt trainingChat = new TrainingChatGpt(ApiKey);
+            
+            await trainingChat.TrainingBot();
 
             string answer = string.Empty;
 
-            var openai = new OpenAIAPI(ApiKey);
+            var openai = trainingChat.returnTraning();
             CompletionRequest completion = new CompletionRequest();
 
             completion.Prompt = question;
             completion.Model = OpenAI_API.Models.Model.DavinciText;
-            completion.MaxTokens = token;
+            completion.MaxTokens = 4097;
 
             CompletionResult result = await openai.Completions.CreateCompletionAsync(completion);
 
