@@ -8,10 +8,12 @@ namespace ChatGptApi.Controllers
     public class GptController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public GptController(IConfiguration configuration)
+        public GptController(IConfiguration configuration, IHttpClientFactory clientFactory)
         {
             _configuration = configuration;
+            _clientFactory = clientFactory;
         }
 
         [HttpGet("GetAnswerAndQuestion")]
@@ -20,9 +22,9 @@ namespace ChatGptApi.Controllers
             if (string.IsNullOrEmpty(request))
                 return BadRequest("Please fill question");
 
-            ChatGPTService chatGPTService = new ChatGPTService(_configuration["ApiKey"]);
+            ChatGPTService chatGPT = new ChatGPTService(_configuration["ApiKey"], _clientFactory);
 
-            return Ok(await chatGPTService.AnswerAndQuestion(request, token));
+            return Ok(await chatGPT.AnswerAndQuestion(request, token));
 
         }
 
@@ -32,23 +34,13 @@ namespace ChatGptApi.Controllers
             if (string.IsNullOrEmpty(request))
                 return BadRequest("Please fill question");
 
-            ChatGPTService chatGPTService = new ChatGPTService(_configuration["ApiKey"]);
 
-            return Ok(await chatGPTService.Code(request, token));
+            ChatGPTService chatGPT = new ChatGPTService(_configuration["ApiKey"], _clientFactory);
 
-        }
-
-        [HttpGet("GetImage")]
-        public async Task<IActionResult> GetImage(string request)
-        {
-            if (string.IsNullOrEmpty(request))
-                return BadRequest("Please fill question");
-
-            ChatGPTService chatGPTService = new ChatGPTService(_configuration["ApiKey"]);
-
-            return Ok(await chatGPTService.GenerateImage(request));
+            return Ok(await chatGPT.Code(request, token));
 
         }
+
 
         [HttpGet("HttpClienteAnswerAndQuestion")]
         public async Task<IActionResult> HttpClienteAnswerAndQuestion(string request, int token)
@@ -56,9 +48,21 @@ namespace ChatGptApi.Controllers
             if (string.IsNullOrEmpty(request))
                 return BadRequest("Please fill question");
 
-            ChatGPTService chatGPTService = new ChatGPTService(_configuration["ApiKey"]);
+            ChatGPTService chatGPT = new ChatGPTService(_configuration["ApiKey"], _clientFactory);
 
-            return Ok(await chatGPTService.HttpClientAnswerAndQuestion(request, token));
+            return Ok(await chatGPT.HttpClientAnswerAndQuestion(request, token));
+
+        }
+
+        [HttpGet("HttpClienteGenerateImage")]
+        public async Task<IActionResult> HttpClienteGenerateImage(string request, string size)
+        {
+            if (string.IsNullOrEmpty(request))
+                return BadRequest("Please fill question");
+            
+            ChatGPTService chatGPT = new ChatGPTService(_configuration["ApiKey"], _clientFactory);
+
+            return Ok(await chatGPT.GenerateImagem(request, size));
 
         }
     }
